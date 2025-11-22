@@ -1,0 +1,98 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Fish Speech / TTS Model outputs
+checkpoints/
+!checkpoints/.gitkeep
+results/
+!results/.gitkeep
+outputs/
+models/
+
+# Training artifacts
+*.bin
+*.safetensors
+*.ckpt
+runs/
+logs/
+*.log
+wandb/
+tensorboard_logs/
+
+# HuggingFace cache
+.cache/
+
+# Large files
+*.h5
+*.pth
+*.pt
+*.tar.gz
+
+# Audio files (processed)
+data/FinnishSpeaker/
+data/FinnishSpeaker*.tar.gz
+data/FinnishSpeaker_*
+data/*.wav
+data/*.mp3
+data/*.flac
+
+# Dataset files - YOUR PRIVATE DATA (never commit!)
+datasets/finnish-tts-raw/
+datasets/**/*.wav
+datasets/**/*.mp3
+datasets/**/*.flac
+datasets/**/*.tar.gz
+datasets/**/*.zip
+datasets/**/*.csv
+datasets/**/*.tsv
+*.txt
+*.parquet
+
+# Protobuf files
+data/protos/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+offload/
+
+# Helper script logs
+*.sh.log

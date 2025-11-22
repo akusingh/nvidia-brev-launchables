@@ -1,0 +1,60 @@
+# Git attributes for Finnish TTS project
+
+# Auto detect text files and normalize line endings
+* text=auto
+
+# Python files
+*.py text eol=lf
+*.pyx text eol=lf
+*.ipynb text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.txt text eol=lf
+
+# Configuration files
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.cfg text eol=lf
+*.ini text eol=lf
+
+# Git files
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Binary files
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.flac binary
+*.ckpt binary
+*.pt binary
+*.pth binary
+*.bin binary
+*.h5 binary
+*.pkl binary
+*.npy binary
+*.npz binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.7z binary
+
+# Notebooks with output (treat as binary to avoid merge conflicts)
+*.ipynb merge=union
