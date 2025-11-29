@@ -36,11 +36,13 @@ if command -v apt-get &> /dev/null; then
 fi
 
 # Check Python version
-PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
+PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
+PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d. -f1)
+PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d. -f2)
 echo ""
 echo "🐍 Python version: $PYTHON_VERSION"
 
-if (( $(echo "$PYTHON_VERSION < 3.8" | bc -l) )); then
+if [ "$PYTHON_MAJOR" -lt 3 ] || [ "$PYTHON_MAJOR" -eq 3 -a "$PYTHON_MINOR" -lt 8 ]; then
     echo "❌ Python 3.8+ required. Please upgrade Python."
     exit 1
 fi
