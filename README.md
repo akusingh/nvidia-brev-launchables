@@ -27,9 +27,14 @@ Train high-quality Finnish TTS models on Brev's GPU infrastructure with automate
 # Clone this repository (or download it to your Brev instance)
 cd ~/nvidia-brev
 
+# (Optional) Set HuggingFace token for gated models
+export HF_TOKEN="your_huggingface_token_here"
+
 # Run setup script
 bash setup.sh
 ```
+
+**Note:** Some models require HuggingFace authentication. Get your token from [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).
 
 ### 3. Prepare Your Dataset
 
