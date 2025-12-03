@@ -42,7 +42,7 @@ PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d. -f2)
 echo ""
 echo "🐍 Python version: $PYTHON_VERSION"
 
-if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 8 ]); then
+if [ "$PYTHON_MAJOR" -lt 3 ] || [ "$PYTHON_MAJOR" -eq 3 -a "$PYTHON_MINOR" -lt 8 ]; then
     echo "❌ Python 3.8+ required. Please upgrade Python."
     exit 1
 fi
