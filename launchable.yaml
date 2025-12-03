@@ -1,0 +1,212 @@
+# Finnish TTS Training - NVIDIA Launchables
+name: "Finnish Text-to-Speech Training with VQ Caching"
+version: "1.0.0"
+description: "Train high-quality Finnish TTS models in 4.5 hours for $5.40. Features pre-extracted VQ tokens for 15-minute faster setup. One-click LoRA fine-tuning on NVIDIA GPUs."
+
+# Discovery
+tags:
+  - tts
+  - speech-synthesis
+  - finnish
+  - lora
+  - fish-speech
+  - audio
+  - nlp
+  - pytorch
+  - production-ready
+
+# Author info
+author: "Arun Kumar Singh"
+repository: "https://github.com/yourusername/finnish-tts-brev"
+license: "MIT"
+
+# Hardware requirements
+hardware:
+  min_gpu: "A100-40GB"
+  recommended_gpu: "A100-80GB"
+  gpu_memory_min: "40GB"
+  gpu_memory_recommended: "80GB"
+  storage_required: "50GB"
+  estimated_training_time: "4.5 hours"
+  estimated_cost: "$5.40"
+
+# Quick stats
+stats:
+  dataset_size: "2000 samples (4 hours audio)"
+  model_size: "868M params (base) + 8.1M params (LoRA)"
+  training_method: "LoRA fine-tuning"
+  framework: "PyTorch 2.9.1 + Lightning"
+  
+# Key features
+features:
+  - "✅ Pre-extracted VQ tokens (skip 15-minute preprocessing)"
+  - "✅ One-click training setup"
+  - "✅ LoRA fine-tuning (memory efficient)"
+  - "✅ Production-ready pipeline"
+  - "✅ Checkpoints every 100 steps"
+  - "✅ Cost-optimized ($5.40 total)"
+  - "✅ Incremental training support"
+
+# Use cases
+use_cases:
+  - "Train custom Finnish voice for content creation"
+  - "Research low-resource language TTS"
+  - "Learn LoRA fine-tuning techniques"
+  - "Prototype multilingual TTS applications"
+  - "Production Finnish voice synthesis"
+
+# Dataset (pre-configured)
+datasets:
+  - name: "finnish-speaker-2000"
+    description: "2000 Finnish audio samples with pre-extracted VQ tokens"
+    source: "https://huggingface.co/datasets/yourusername/finnish-tts-dataset/resolve/main/finnish-speaker-2000-complete.tar.gz"
+    size: "8GB"
+    format: "WAV + LAB + NPY (VQ tokens)"
+    license: "CC-BY-4.0"
+    extract_to: "${HOME}/data/FinnishSpeaker"
+    
+# Setup instructions
+setup:
+  description: "Install dependencies and prepare environment (5 minutes)"
+  steps:
+    - name: "Clone repository"
+      command: "git clone https://github.com/yourusername/finnish-tts-brev.git ${HOME}/finnish-tts-brev"
+      
+    - name: "Run setup script"
+      command: "cd ${HOME}/finnish-tts-brev && bash setup.sh"
+      estimated_time: "5 minutes"
+      
+    - name: "Download base model"
+      command: "python ${HOME}/fish-speech/tools/download_models.py"
+      estimated_time: "2 minutes"
+      
+    - name: "Download dataset"
+      command: "cd ${HOME} && wget https://huggingface.co/datasets/yourusername/finnish-tts-dataset/resolve/main/finnish-speaker-2000-complete.tar.gz && tar -xzf finnish-speaker-2000-complete.tar.gz -C data/"
+      estimated_time: "3 minutes"
+      
+    - name: "Pack dataset"
+      command: "cd ${HOME}/fish-speech && python fish_speech/data/packer.py ${HOME}/data/FinnishSpeaker ${HOME}/data/protos"
+      estimated_time: "2 minutes"
+
+# Training command
+train:
+  description: "Train Finnish TTS model with LoRA fine-tuning (4.5 hours)"
+  command: |
+    cd ${HOME}/fish-speech && \
+    python fish_speech/train.py \
+      --config-name text2semantic_finetune \
+      pretrained_ckpt_path=${HOME}/finnish-tts-brev/checkpoints/openaudio-s1-mini/model.pth \
+      project=FinnishSpeaker_2000_finetune \
+      train_dataset.proto_files=${HOME}/data/protos \
+      trainer.max_steps=3000 \
+      trainer.val_check_interval=100 \
+      model.lora_config.r=8 \
+      model.lora_config.lora_alpha=16 \
+      data.batch_size=8 \
+      data.num_workers=8
+  estimated_time: "4.5 hours"
+  estimated_cost: "$5.40 on A100-40GB"
+
+# Monitoring
+monitor:
+  logs: "${HOME}/fish-speech/results/FinnishSpeaker_2000_finetune/train.log"
+  checkpoints: "${HOME}/fish-speech/results/FinnishSpeaker_2000_finetune/checkpoints/"
+  tensorboard: "${HOME}/fish-speech/results/FinnishSpeaker_2000_finetune/tensorboard/"
+
+# Outputs
+outputs:
+  - path: "${HOME}/fish-speech/results/FinnishSpeaker_2000_finetune/checkpoints/"
+    description: "Trained LoRA weights (47MB per checkpoint)"
+    type: "model_checkpoint"
+    
+  - path: "${HOME}/fish-speech/results/FinnishSpeaker_2000_finetune/train.log"
+    description: "Training logs with loss curves"
+    type: "log"
+    
+  - path: "${HOME}/fish-speech/results/FinnishSpeaker_2000_finetune/tensorboard/"
+    description: "TensorBoard metrics"
+    type: "metrics"
+
+# Post-training
+inference:
+  description: "Generate audio from trained model"
+  command: |
+    python ${HOME}/fish-speech/tools/llama/generate.py \
+      --checkpoint ${HOME}/fish-speech/results/FinnishSpeaker_2000_finetune/checkpoints/step_000003000.ckpt \
+      --text "Hyvää huomenta! Tervetuloa Suomeen." \
+      --output output.wav
+
+# Documentation
+documentation:
+  readme: "https://github.com/yourusername/finnish-tts-brev/blob/main/README.md"
+  quickstart: "https://github.com/yourusername/finnish-tts-brev/blob/main/QUICKSTART.md"
+  production_guide: "https://github.com/yourusername/finnish-tts-brev/blob/main/PRODUCTION_ROADMAP.md"
+  incremental_training: "https://github.com/yourusername/finnish-tts-brev/blob/main/INCREMENTAL_TRAINING.md"
+  no_data_strategy: "https://github.com/yourusername/finnish-tts-brev/blob/main/LAUNCHABLES_NO_DATA_STRATEGY.md"
+  
+# Demo
+demo:
+  notebook: "https://github.com/yourusername/finnish-tts-brev/blob/main/finnish-tts-training.ipynb"
+  audio_samples: "https://yourusername.github.io/finnish-tts-brev/"
+  video: "https://youtube.com/watch?v=YOUR_VIDEO_ID"
+
+# Cost breakdown
+cost_breakdown:
+  setup: "$0.10 (5 minutes)"
+  vq_extraction: "$0.00 (pre-extracted!)"
+  dataset_packing: "$0.04 (2 minutes)"
+  training: "$5.40 (4.5 hours)"
+  total: "$5.54"
+  savings_vs_traditional: "$0.30 (VQ caching)"
+
+# Innovation highlights
+innovations:
+  - title: "VQ Token Caching"
+    description: "Pre-extracted vector quantization tokens eliminate 15 minutes of preprocessing and reduce OOM errors"
+    
+  - title: "Production-Ready Pipeline"
+    description: "Complete scripts for setup, training, monitoring, and inference with error handling"
+    
+  - title: "Incremental Training"
+    description: "Train additional models 67% faster by starting from existing checkpoints"
+    
+  - title: "Cost Optimization"
+    description: "Optimized batch sizes and worker counts for A100 GPUs, minimizing waste"
+
+# Troubleshooting
+troubleshooting:
+  - issue: "CUDA Out of Memory"
+    solution: "Reduce batch_size from 8 to 4, or num_workers from 8 to 4"
+    
+  - issue: "Protobuf import error"
+    solution: "Install protobuf==3.20.3 (not latest version)"
+    
+  - issue: "TorchCodec missing"
+    solution: "pip install torchcodec==0.8.1"
+    
+  - issue: "Training stalls"
+    solution: "Check data pipeline, verify proto files exist"
+
+# Community
+community:
+  discussions: "https://github.com/yourusername/finnish-tts-brev/discussions"
+  issues: "https://github.com/yourusername/finnish-tts-brev/issues"
+  contributions: "Pull requests welcome! See CONTRIBUTING.md"
+
+# Roadmap
+roadmap:
+  - "✅ Finnish TTS (current)"
+  - "🔄 English TTS (in progress)"
+  - "📋 Spanish, Japanese, German (planned)"
+  - "📋 Multi-speaker support"
+  - "📋 Real-time inference API"
+  - "📋 Gradio web interface"
+
+# Citation
+citation: |
+  @software{finnish_tts_brev_2025,
+    author = {Arun Kumar Singh},
+    title = {Finnish Text-to-Speech Training with VQ Caching},
+    year = {2025},
+    url = {https://github.com/yourusername/finnish-tts-brev}
+  }
