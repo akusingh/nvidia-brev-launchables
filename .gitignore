@@ -96,3 +96,27 @@ offload/
 
 # Helper script logs
 *.sh.log
+
+# Internal planning documents (keep local only)
+*_CHECKLIST.md
+*_PLAN.md
+*_DECISION.md
+*_STRATEGY.md
+*_SUMMARY.md
+*_GUIDE.md
+DELETE_*.md
+IMMEDIATE_*.md
+CLEANUP_*.md
+MIGRATION_*.md
+TESTING_*.md
+READY_*.md
+SUBMISSION_*.md
+
+# Environment files
+.env
+.env.local
+
+# Test data (keep local only)
+test-dataset/
+test-data/
+sample-data/
