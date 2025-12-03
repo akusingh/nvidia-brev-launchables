@@ -124,12 +124,26 @@ if [ -d "$BASE_MODEL_DIR" ]; then
 else
     echo ""
     echo "📥 Downloading base model..."
-    if command -v huggingface-cli &> /dev/null; then
-        huggingface-cli download fishaudio/openaudio-s1-mini --local-dir $BASE_MODEL_DIR
+    
+    # Check if authenticated
+    if [ -n "$HF_TOKEN" ] && command -v huggingface-cli &> /dev/null; then
+        echo "   Attempting download with authentication..."
+        if huggingface-cli download fishaudio/openaudio-s1-mini --local-dir $BASE_MODEL_DIR 2>&1; then
+            echo "✅ Base model downloaded successfully"
+        else
+            echo "⚠️  Model download failed (gated model - requires approval)"
+            echo "   1. Visit: https://huggingface.co/fishaudio/openaudio-s1-mini"
+            echo "   2. Click 'Accept' to request access"
+            echo "   3. Once approved, run: huggingface-cli download fishaudio/openaudio-s1-mini --local-dir checkpoints/openaudio-s1-mini"
+            echo "   Or you can train without pre-downloading (model will download during training)"
+        fi
     else
-        echo "⚠️  huggingface-cli not found. Install it with:"
-        echo "    pip install huggingface-hub"
-        echo "    Then run: huggingface-cli download fishaudio/openaudio-s1-mini --local-dir checkpoints/openaudio-s1-mini"
+        echo "⚠️  Skipping model download (no HF_TOKEN set)"
+        echo "   The model will be downloaded automatically during training."
+        echo "   Or manually download with:"
+        echo "   1. Get token from: https://huggingface.co/settings/tokens"
+        echo "   2. Run: export HF_TOKEN='your_token'"
+        echo "   3. Run: huggingface-cli download fishaudio/openaudio-s1-mini --local-dir checkpoints/openaudio-s1-mini"
     fi
 fi
 
@@ -138,6 +152,21 @@ echo ""
 echo "🔧 Configuring environment..."
 export HF_HOME=~/.cache/huggingface
 export TOKENIZERS_PARALLELISM=false
+
+# Check for HuggingFace authentication
+if [ -z "$HF_TOKEN" ]; then
+    echo ""
+    echo "⚠️  HF_TOKEN not set. Some models may require authentication."
+    echo "   To authenticate, run: export HF_TOKEN='your_token_here'"
+    echo "   Or run: huggingface-cli login"
+    echo ""
+else
+    echo ""
+    echo "✅ HuggingFace token detected"
+    # Login with token
+    pip install -q huggingface_hub
+    python3 -c "from huggingface_hub import login; login(token='$HF_TOKEN')" 2>/dev/null || echo "⚠️  HF login failed"
+fi
 
 # Add to bashrc if not already there
 if ! grep -q "HF_HOME" ~/.bashrc 2>/dev/null; then
