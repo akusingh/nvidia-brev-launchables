@@ -41,11 +41,20 @@ PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d. -f1)
 PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d. -f2)
 echo ""
 echo "🐍 Python version: $PYTHON_VERSION"
+echo "🔍 Debug - Major: $PYTHON_MAJOR, Minor: $PYTHON_MINOR"
 
-if [ "$PYTHON_MAJOR" -lt 3 ] || [ "$PYTHON_MAJOR" -eq 3 -a "$PYTHON_MINOR" -lt 8 ]; then
-    echo "❌ Python 3.8+ required. Please upgrade Python."
+# Use proper bash integer comparison
+if [ "$PYTHON_MAJOR" -lt 3 ]; then
+    echo "❌ Python 3.8+ required (found Python $PYTHON_MAJOR.$PYTHON_MINOR)"
     exit 1
 fi
+
+if [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 8 ]; then
+    echo "❌ Python 3.8+ required (found Python $PYTHON_MAJOR.$PYTHON_MINOR)"
+    exit 1
+fi
+
+echo "✅ Python version check passed"
 
 # Upgrade pip
 echo ""
