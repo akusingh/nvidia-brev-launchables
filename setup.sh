@@ -93,12 +93,24 @@ fi
 log_info "Python version check passed"
 
 # ============================================================================
+# FIX PATH FOR USER-INSTALLED SCRIPTS
+# ============================================================================
+
+if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+    log_step "Adding ~/.local/bin to PATH..."
+    export PATH="$HOME/.local/bin:$PATH"
+    log_info "PATH updated (jupyter, huggingface-cli, etc. will work)"
+fi
+
+echo ""
+
+# ============================================================================
 # UPGRADE PIP
 # ============================================================================
 
 if ! is_completed "pip_upgrade"; then
     log_step "Upgrading pip..."
-    python3 -m pip install --upgrade pip setuptools wheel -q
+    python3 -m pip install --upgrade pip setuptools wheel -q --no-warn-script-location
     mark_completed "pip_upgrade"
     log_info "pip upgraded"
 else
@@ -159,23 +171,32 @@ echo ""
 if ! is_completed "fish_speech_deps"; then
     log_step "Installing Fish Speech dependencies..."
     
+    # Fix versions before installing fish-speech to avoid conflicts
+    log_step "Pinning dependency versions (numpy, pydantic)..."
+    pip install -q 'numpy<1.26.5' 'pydantic==2.9.2' --no-warn-script-location
+    
     # Core dependencies
-    pip install -q hydra-core omegaconf pyrootutils
-    pip install -q lightning tensorboard
-    pip install -q transformers tokenizers
-    pip install -q loralib
+    pip install -q hydra-core omegaconf pyrootutils --no-warn-script-location
+    pip install -q lightning tensorboard --no-warn-script-location
+    pip install -q transformers tokenizers --no-warn-script-location
+    pip install -q loralib --no-warn-script-location
     
     # Audio processing
-    pip install -q descript-audio-codec
-    pip install -q git+https://github.com/descriptinc/audiotools
+    pip install -q descript-audio-codec --no-warn-script-location
+    pip install -q git+https://github.com/descriptinc/audiotools --no-warn-script-location
     
     # Text processing
-    pip install -q nemo_text_processing WeTextProcessing
+    pip install -q nemo_text_processing WeTextProcessing --no-warn-script-location
+    
+    # Install missing fish-speech dependencies
+    log_step "Installing additional dependencies..."
+    pip install -q cachetools 'datasets==2.18.0' 'gradio>5.0.0' loguru natsort \
+        pydub tiktoken uvicorn wandb zstandard --no-warn-script-location
     
     # Install Fish Speech (skip pyaudio - not needed for training)
-    pip install -q -e . --no-deps
+    pip install -q -e . --no-deps --no-warn-script-location
     pip install -q "einx[torch]==0.2.2" "kui>=1.6.0" "modelscope==1.17.1" \
-        "opencc-python-reimplemented==0.1.7" ormsgpack "resampy>=0.4.3" silero-vad
+        "opencc-python-reimplemented==0.1.7" ormsgpack "resampy>=0.4.3" silero-vad --no-warn-script-location
     
     mark_completed "fish_speech_deps"
     log_info "Fish Speech dependencies installed"
@@ -191,8 +212,8 @@ echo ""
 
 if ! is_completed "utility_packages"; then
     log_step "Installing utility packages..."
-    pip install -q soundfile numpy pandas tqdm loguru protobuf
-    pip install -q jupyter ipywidgets notebook
+    pip install -q soundfile pandas tqdm protobuf --no-warn-script-location
+    pip install -q jupyter ipywidgets notebook --no-warn-script-location
     mark_completed "utility_packages"
     log_info "Utility packages installed"
 else
@@ -209,12 +230,29 @@ echo ""
 # ============================================================================
 
 log_step "Creating project directories..."
+
+# Detect and handle read-only directories
+if [ ! -w "$PWD" ]; then
+    log_warn "Current directory ($PWD) is read-only"
+    log_warn "Using home directory for project files..."
+    PROJECT_DIR="${HOME}/finnish-tts-training"
+    mkdir -p "$PROJECT_DIR" || {
+        log_error "Cannot create project directory: $PROJECT_DIR"
+        exit 1
+    }
+    cd "$PROJECT_DIR" || {
+        log_error "Cannot change to project directory: $PROJECT_DIR"
+        exit 1
+    }
+    log_info "Project directory: $PROJECT_DIR"
+fi
+
 mkdir -p datasets/finnish-tts-raw/audio
 mkdir -p data/FinnishSpeaker
 mkdir -p checkpoints
 mkdir -p results
 mkdir -p logs
-log_info "Project directories created"
+log_info "Project directories created at: $(pwd)"
 
 echo ""
 
