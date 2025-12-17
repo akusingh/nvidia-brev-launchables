@@ -111,16 +111,34 @@ echo ""
 # FISH SPEECH REPOSITORY
 # ============================================================================
 
+# Try multiple possible locations for Fish Speech
 FISH_SPEECH_DIR="../fish-speech"
+
+# If relative path fails, try absolute path in home directory
+if [ ! -d "$FISH_SPEECH_DIR" ] && [ ! -w "$(dirname $FISH_SPEECH_DIR 2>/dev/null)" ]; then
+    log_warn "Cannot write to parent directory, trying home directory..."
+    FISH_SPEECH_DIR="${HOME}/fish-speech"
+fi
 
 if [ -d "$FISH_SPEECH_DIR" ] && [ -d "$FISH_SPEECH_DIR/.git" ]; then
     log_info "Fish Speech found at: $FISH_SPEECH_DIR"
 else
     log_step "Cloning Fish Speech repository..."
+    
+    # Ensure parent directory exists and is writable
+    PARENT_DIR="$(dirname "$FISH_SPEECH_DIR")"
+    if [ ! -d "$PARENT_DIR" ]; then
+        mkdir -p "$PARENT_DIR" || {
+            log_error "Cannot create directory: $PARENT_DIR"
+            exit 1
+        }
+    fi
+    
     if git clone https://github.com/fishaudio/fish-speech.git "$FISH_SPEECH_DIR" 2>&1; then
-        log_info "Fish Speech cloned successfully"
+        log_info "Fish Speech cloned successfully to: $FISH_SPEECH_DIR"
     else
-        log_error "Failed to clone Fish Speech repository"
+        log_error "Failed to clone Fish Speech repository to: $FISH_SPEECH_DIR"
+        log_error "Ensure the parent directory is writable: $PARENT_DIR"
         exit 1
     fi
 fi
@@ -128,6 +146,7 @@ fi
 # Verify the directory is accessible
 if ! cd "$FISH_SPEECH_DIR" 2>/dev/null; then
     log_error "Cannot access Fish Speech directory: $FISH_SPEECH_DIR"
+    log_error "Check permissions and ensure the directory exists"
     exit 1
 fi
 
@@ -181,7 +200,7 @@ else
 fi
 
 # Return to original directory
-cd - > /dev/null
+cd - > /dev/null 2>&1 || cd /root/nvidia-brev-launchables || true
 
 echo ""
 
